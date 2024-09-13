@@ -1,1 +1,0 @@
-//Pasta relacionada as configurações da aplicação, como banco de dados
