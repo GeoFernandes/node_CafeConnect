@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import dotenv from 'dotenv';
 import express from 'express';
-import { createExpressServer } from 'routing-controllers';
+import bodyParser from 'body-parser';
+import { createExpressServer, useExpressServer } from 'routing-controllers';
 import { connectWithRetry } from './src/config/database/database';
 import UsuarioController from './src/controllers/usuario/UsuarioController'
 
@@ -11,7 +12,13 @@ const app = createExpressServer({
   controllers: [UsuarioController],
 });
 
-app.use(express.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+
+useExpressServer(app, {
+  controllers: [UsuarioController],
+  defaultErrorHandler: false
+});
 
 const startServer = () => {
   app.listen(8080, () => {
