@@ -1,70 +1,38 @@
 import { Post, Body, HttpCode, Controller, Res, Get, Params, UseBefore, Delete } from 'routing-controllers';
 import { Response } from 'express';
-
 import { ILogin, IUsuario } from '../../shared/interface';
 import UsuarioService from '../../services/usuario.service';
 import { Usuario } from '../../schemas/usuario-schema';
 import mongoose from 'mongoose';
 import { verificaToken } from '../../autenticacao/auth.middleware';
+import { OpenAPI } from 'routing-controllers-openapi';
 
 @Controller()
 class UsuarioController {
 
   @Post("/auth/register")
   @HttpCode(201)
+  @OpenAPI({ summary: 'Registra um novo usuário', description: 'Cria um novo usuário com os dados fornecidos' })
   async registroDeUsuario(@Body() dadoUsuario: IUsuario): Promise<{ msg: string, objeto?: any }> {
-    console.log("dadoUsuario", dadoUsuario)
-    dadoUsuario = {
-      nome: "Ana",
-      email: "anaJulia@gmail.com",
-      cpf: "32174561092",
-      telefone: "(11) 96102-9294",
-      senha: "anaJulia09290",
-      confirmarSenha: "anaJulia09290",
-      endereco: {
-          rua: "Rua Silva Bueno",
-          numero: "1000",
-          complemento: "",
-          cidade: "São Paulo",
-          estado: "São Paulo",
-          cep: "014120-010"
-      },
-      historico: [
-          {
-              dataCompra: "2024-09-20",
-              itensComprados: [
-                  {
-                      nomeProduto: "Cafeteira Dolce Gusto",
-                      quantidade: 1,
-                      preco: 300
-                  }
-              ],
-              valorTotal: 320
-          }
-      ]
-  };
+    try {
+      const dadosValidos = await UsuarioService.validaDadosUsuario(dadoUsuario);
+      if (!dadosValidos) return { msg: "Preencha todos os campos obrigatórios corretamente." };
 
-  try {
-    // Validação dos dados do usuário
-    const dadosValidos = await UsuarioService.validaDadosUsuario(dadoUsuario);
-    if (!dadosValidos) return { msg: "Preencha todos os campos obrigatórios corretamente." };
+      const userExists = await UsuarioService.acharUsuarioPeloEmail(dadoUsuario.email);
+      if (userExists) return { msg: "E-mail já registrado na base de dados." };
 
-    // Verifica se o e-mail já está registrado
-    const userExists = await UsuarioService.acharUsuarioPeloEmail(dadoUsuario.email);
-    if (userExists) return { msg: "E-mail já registrado na base de dados." };
+      await UsuarioService.criarUsuario(dadoUsuario);
 
-    // Criação do novo usuário
-    await UsuarioService.criarUsuario(dadoUsuario);
-
-    return { msg: "Usuário criado com sucesso!" };
-  } catch (erro) {
-    console.error("Erro ao criar usuário:", erro);
-    return { msg: "Erro no servidor. Tente mais tarde." };
-  }
+      return { msg: "Usuário criado com sucesso!" };
+    } catch (erro) {
+      console.error("Erro ao criar usuário:", erro);
+      return { msg: "Erro no servidor. Tente mais tarde." };
+    }
   }
 
   @Post("/auth/login")
   @HttpCode(200)
+  @OpenAPI({ summary: 'Faz login do usuário', description: 'Autentica o usuário com email e senha' })
   async loginDoUsuario(@Body() dadosLogin: ILogin): Promise<{ msg: string, token?: string }> {
     try {
       const resultado = await UsuarioService.verificaDadosLogin(dadosLogin);
@@ -77,8 +45,8 @@ class UsuarioController {
 
   @Get("/user/:id")
   @UseBefore(verificaToken)
+  @OpenAPI({ summary: 'Obtém informações do usuário', description: 'Busca as informações de um usuário pelo ID' })
   async informacoesUsuario(@Params() idUsuario: string): Promise<{ msg: string, usuario?: any }> {
-    idUsuario = '66e70b722c7188e72d582b91'
     if (!mongoose.Types.ObjectId.isValid(idUsuario)) {
       return { msg: "ID inválido." };
     }
@@ -97,6 +65,7 @@ class UsuarioController {
 
   @Delete("/user/:id")
   @UseBefore(verificaToken)
+  @OpenAPI({ summary: 'Exlui informações do usuário', description: 'exclui as informações de um usuário pelo ID' })
   async deletaUsuario(@Params() idUsuario: string): Promise<{ msg: string, usuario?: any }> {
     idUsuario = '66e70b722c7188e72d582b91'
     if (!mongoose.Types.ObjectId.isValid(idUsuario)) {
