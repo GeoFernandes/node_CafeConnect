@@ -1,4 +1,4 @@
-import { Post, Body, HttpCode, Controller, Res, Get, Params, UseBefore } from 'routing-controllers';
+import { Post, Body, HttpCode, Controller, Res, Get, Params, UseBefore, Delete } from 'routing-controllers';
 import { Response } from 'express';
 
 import { ILogin, IUsuario } from '../../shared/interface';
@@ -89,6 +89,26 @@ class UsuarioController {
         return { msg: "Usuário não encontrado." };
       }
       return { msg: "Usuário encontrado.", usuario };
+    } catch (erro) {
+      return { msg: "Erro ao buscar o usuário." };
+    }
+  }
+
+
+  @Delete("/user/:id")
+  @UseBefore(verificaToken)
+  async deletaUsuario(@Params() idUsuario: string): Promise<{ msg: string, usuario?: any }> {
+    idUsuario = '66e70b722c7188e72d582b91'
+    if (!mongoose.Types.ObjectId.isValid(idUsuario)) {
+      return { msg: "ID inválido." };
+    }
+
+    try {
+      const usuarioDeletado = await Usuario.deleteOne({id: idUsuario});
+      if (!usuarioDeletado) {
+        return { msg: "Usuário não encontrado." };
+      }
+      return { msg: "Usuário excluído."};
     } catch (erro) {
       return { msg: "Erro ao buscar o usuário." };
     }
