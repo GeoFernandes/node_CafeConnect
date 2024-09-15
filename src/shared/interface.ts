@@ -1,4 +1,4 @@
-export interface Endereco {
+export interface IEndereco {
     rua: string;
     numero: string;
     complemento?: string
@@ -7,16 +7,16 @@ export interface Endereco {
     cep: string;
 }
   
-export interface ItemComprado {
+export interface IItemComprado {
     nomeProduto: string;
     quantidade: number;
     preco: number;
 }
   
 
-export interface HistoricoCompra {
+export interface IHistoricoCompra {
     dataCompra: string;
-    itensComprados: ItemComprado[];
+    itensComprados: IItemComprado[];
     valorTotal: number;
 }
 
@@ -27,6 +27,12 @@ export interface IUsuario {
     telefone: string;
     senha: string;
     confirmarSenha: string;
-    endereco: Endereco;
-    historico: HistoricoCompra[];
+    endereco: IEndereco;
+    historico: IHistoricoCompra[];
+}
+
+
+export interface ILogin {
+    email: string,
+    senha: string
 }
