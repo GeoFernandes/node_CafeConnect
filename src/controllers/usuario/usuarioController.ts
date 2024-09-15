@@ -1,8 +1,11 @@
-import { Post, Body, HttpCode, Controller, Res } from 'routing-controllers';
+import { Post, Body, HttpCode, Controller, Res, Get, Params, UseBefore } from 'routing-controllers';
 import { Response } from 'express';
 
-import { IUsuario } from '../../shared/interface';
+import { ILogin, IUsuario } from '../../shared/interface';
 import UsuarioService from '../../services/usuario.service';
+import { Usuario } from '../../schemas/usuario-schema';
+import mongoose from 'mongoose';
+import { verificaToken } from '../../autenticacao/auth.middleware';
 
 @Controller()
 class UsuarioController {
@@ -10,6 +13,7 @@ class UsuarioController {
   @Post("/auth/register")
   @HttpCode(201)
   async registroDeUsuario(@Body() dadoUsuario: IUsuario): Promise<{ msg: string, objeto?: any }> {
+    console.log("dadoUsuario", dadoUsuario)
     dadoUsuario = {
       nome: "Ana",
       email: "anaJulia@gmail.com",
@@ -40,32 +44,56 @@ class UsuarioController {
       ]
   };
 
+  try {
+    // Validação dos dados do usuário
+    const dadosValidos = await UsuarioService.validaDadosUsuario(dadoUsuario);
+    if (!dadosValidos) return { msg: "Preencha todos os campos obrigatórios corretamente." };
+
+    // Verifica se o e-mail já está registrado
+    const userExists = await UsuarioService.acharUsuarioPeloEmail(dadoUsuario.email);
+    if (userExists) return { msg: "E-mail já registrado na base de dados." };
+
+    // Criação do novo usuário
+    await UsuarioService.criarUsuario(dadoUsuario);
+
+    return { msg: "Usuário criado com sucesso!" };
+  } catch (erro) {
+    console.error("Erro ao criar usuário:", erro);
+    return { msg: "Erro no servidor. Tente mais tarde." };
+  }
+  }
+
+  @Post("/auth/login")
+  @HttpCode(200)
+  async loginDoUsuario(@Body() dadosLogin: ILogin): Promise<{ msg: string, token?: string }> {
     try {
-      const dadoUsuarioValido = await UsuarioService.validaDadosUsuario(dadoUsuario);
-      if (!dadoUsuarioValido) return { msg: "Preencha todos os campos obrigatórios." };
-
-      const userExists = await UsuarioService.acharUsuarioPeloEmail(dadoUsuario.email);
-      if (userExists) return { msg: "E-mail já registrado na base de dados" };
-
-      const teste = await UsuarioService.criarUsuario(dadoUsuario);
-
-      return { msg: "Usuário criado com sucesso!" };
+      const resultado = await UsuarioService.verificaDadosLogin(dadosLogin);
+      return resultado;
     } catch (erro) {
-      console.log(erro);
-      return { msg: "Aconteceu um erro no servidor, por favor tente mais tarde!" };
+      console.error("Erro no login:", erro);
+      return { msg: "Erro no servidor. Tente mais tarde." };
     }
   }
 
-  // @Post("/auth/login")
-  // async simpleEndpoint(@Body() body: any, @Res() res: Response): Promise<any> {
-  //   return res.status(200).json({ msg: "Corpo recebido!", body });
-  // }
+  @Get("/user/:id")
+  @UseBefore(verificaToken)
+  async informacoesUsuario(@Params() idUsuario: string): Promise<{ msg: string, usuario?: any }> {
+    idUsuario = '66e70b722c7188e72d582b91'
+    if (!mongoose.Types.ObjectId.isValid(idUsuario)) {
+      return { msg: "ID inválido." };
+    }
 
-  // @Post("/informacoes")
-  // @HttpCode(200)
-  // informacoesDoUsuario(@Body() body: any) {
-  //   return { msg: "Informações do usuário" };
-  // }
+    try {
+      const usuario = await Usuario.findById(idUsuario, '-senha');
+      if (!usuario) {
+        return { msg: "Usuário não encontrado." };
+      }
+      return { msg: "Usuário encontrado.", usuario };
+    } catch (erro) {
+      return { msg: "Erro ao buscar o usuário." };
+    }
+  }
+
 }
 
 export default UsuarioController;
