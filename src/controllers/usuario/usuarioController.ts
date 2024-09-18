@@ -14,7 +14,7 @@ class UsuarioController {
   @HttpCode(201)
   @OpenAPI({ summary: 'Registra um novo usuário', description: 'Cria um novo usuário com os dados fornecidos' })
   async registroDeUsuario(@Body() dadoUsuario: IUsuario): Promise<{ msg: string, objeto?: any }> {
-    console.log(dadoUsuario);
+
     try {
       const dadosValidos = await UsuarioService.validaDadosUsuario(dadoUsuario);
       if (!dadosValidos) return { msg: "Preencha todos os campos obrigatórios corretamente." };
@@ -35,7 +35,6 @@ class UsuarioController {
   @HttpCode(200)
   @OpenAPI({ summary: 'Faz login do usuário', description: 'Autentica o usuário com email e senha' })
   async loginDoUsuario(@Body() dadosLogin: ILogin): Promise<{ msg: string, token?: string }> {
-    console.log(dadosLogin);
     try {
       const resultado = await UsuarioService.verificaDadosLogin(dadosLogin);
       return resultado;
@@ -81,7 +80,6 @@ class UsuarioController {
       return { msg: "ID inválido." };
     }
 
-    console.log(id)
     try {
       const usuarioDeletado = await Usuario.deleteOne({ _id: id});
       if (!usuarioDeletado) {
