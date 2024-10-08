@@ -36,6 +36,7 @@ class UsuarioController {
   @OpenAPI({ summary: 'Faz login do usuário', description: 'Autentica o usuário com email e senha' })
   async loginDoUsuario(@Body() dadosLogin: ILogin): Promise<{ msg: string, token?: string }> {
     try {
+      console.log(dadosLogin);
       const resultado = await UsuarioService.verificaDadosLogin(dadosLogin);
       return resultado;
     } catch (erro) {

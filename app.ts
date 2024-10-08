@@ -6,16 +6,31 @@ import { createExpressServer } from 'routing-controllers';
 import { connectWithRetry } from './src/config/database/database';
 import UsuarioController from './src/controllers/usuario/UsuarioController';
 import swaggerUi from 'swagger-ui-express';
-import { getMetadataArgsStorage } from 'routing-controllers'
-import { routingControllersToSpec } from 'routing-controllers-openapi'
+import { getMetadataArgsStorage } from 'routing-controllers';
+import { routingControllersToSpec } from 'routing-controllers-openapi';
+import cors from 'cors';
 
 // Inicializa variáveis de ambiente
 dotenv.config();
 
-// Cria o servidor Express
+// Configura o CORS para liberar a origem específica do frontend
 const app = createExpressServer({
   controllers: [UsuarioController],
+  cors: {
+    origin: 'http://localhost:5173', // Permitir o front-end
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true, // Se usar cookies ou autenticação via sessão
+  },
 });
+
+// Aplica o middleware CORS antes das rotas
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+}));
+
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
