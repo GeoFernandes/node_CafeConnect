@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, JsonController, Params, Post, Put, UploadedFile, UseBefore } from 'routing-controllers';
+import { Body, Delete, Get, HttpCode, JsonController, Params, Post, Put } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { IProduto } from '../../shared/interfaces/produto/produto.interface';
 import ProdutoService from '../../services/produto/produto.service';
+import { IProduto } from '../../shared/interfaces/produto/produto.interface';
 
 @JsonController()
 class ProdutoController {
@@ -11,7 +11,7 @@ class ProdutoController {
     async listarProdutos() { 
         try {
             const produtos = await ProdutoService.listarProdutos();
-            return produtos; // Retorna a lista de produtos
+            return produtos;
         } catch (e) {
             return { message: 'Erro ao listar produtos.' };
         }
@@ -45,10 +45,10 @@ class ProdutoController {
     @Put("/update-product/:id")
     @HttpCode(201)
     @OpenAPI({ summary: 'Altera as informações de um produto', description: 'Altera as informações do produto pelo ID' })
-    async alterarProduto(@Body() dadosProduto: IProduto) { 
+    async alterarProduto(@Params() params: { id: string },@Body() dadosProduto: IProduto) { 
         try {
-            const produto = await ProdutoService.cadastrarProduto(dadosProduto);
-            return { message: 'Produto cadastrado com sucesso!' };
+            const produto = await ProdutoService.alterarProduto(dadosProduto, params.id);
+            return { message: 'Produto alterado com sucesso!' };
         } catch(e: any) {
             console.error('Erro ao atualizar o produto:', e);
             return { message: 'Erro ao atualizar o produto:', error: e.message };
