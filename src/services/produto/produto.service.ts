@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import multer from 'multer';
+=======
+>>>>>>> 9485b32eb272d285289c60ecddb40125871b1906
 import { Produto } from "../../schemas/produto/produto-schema";
 import { IProduto } from "../../shared/interfaces/produto/produto.interface";
 
@@ -30,8 +33,13 @@ class ProdutoService {
         return Produto.findById(id);
     }
 
+<<<<<<< HEAD
     public async alteraeProduto(id: string) {
         return Produto.findById(id);
+=======
+    public async alterarProduto(produto: IProduto, id: string) {
+        return Produto.findByIdAndUpdate(id, produto);
+>>>>>>> 9485b32eb272d285289c60ecddb40125871b1906
     }
 
     public async deletarProduto(id: string) {
@@ -39,4 +47,8 @@ class ProdutoService {
     }
 }
 
+<<<<<<< HEAD
 export default new ProdutoService();
+=======
+export default new ProdutoService();
+>>>>>>> 9485b32eb272d285289c60ecddb40125871b1906
