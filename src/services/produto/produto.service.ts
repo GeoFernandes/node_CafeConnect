@@ -36,6 +36,16 @@ class ProdutoService {
     public async deletarProduto(id: string) {
         return Produto.findByIdAndDelete(id);
     }
+
+    public async atualizarEstoque(title: string, novaQuantidade: number) {
+        const produto = await Produto.findOneAndUpdate(
+            { titulo: title },
+            { quantidadeEstoque: novaQuantidade },
+            { new: true }
+        );
+        
+        return produto;
+    }
 }
 
 export default new ProdutoService();
