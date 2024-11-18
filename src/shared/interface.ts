@@ -21,13 +21,13 @@ export interface IHistoricoCompra {
 }
 
 export interface IUsuario {
-    nome: string;
     email: string;
+    nome: string;
+    senha: string;
     cpf: string;
     telefone: string;
-    senha: string;
     confirmarSenha: string;
-    endereco: IEndereco;
+    endereco?: IEndereco;
     historico: IHistoricoCompra[];
 }
 

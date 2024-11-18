@@ -9,7 +9,7 @@ interface UsuarioDocument extends Document {
   cpf: string;
   telefone: string;
   senha: string,
-  endereco: IEndereco;
+  endereco?: IEndereco;
   historico: IHistoricoCompra[];
 }
 
@@ -19,7 +19,7 @@ const usuarioSchema = new Schema<UsuarioDocument>({
   cpf: { type: String, required: true },
   telefone: { type: String, required: true },
   senha: {type: String, required: true },
-  endereco: { type: String, required: true },
+  endereco: { type: String, required: false },
   historico: [historicoSchema]
 });
 
