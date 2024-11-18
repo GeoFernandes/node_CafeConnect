@@ -15,7 +15,6 @@ class UsuarioService {
     const nomeHash = await this.hashDados(dadoUsuario.nome);
     const cpfHash = await this.hashDados(dadoUsuario.cpf);
     const telefoneHash = await this.hashDados(dadoUsuario.telefone);
-    const enderecoHash = await this.hashDados(JSON.stringify(dadoUsuario.endereco));
 
     const novoUsuario = new Usuario({
       nome: nomeHash,
@@ -23,7 +22,6 @@ class UsuarioService {
       cpf: cpfHash,
       telefone: telefoneHash,
       senha: senhaHash,
-      endereco: enderecoHash,
       historico: dadoUsuario.historico || []
     });
 

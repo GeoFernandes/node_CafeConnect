@@ -9,7 +9,7 @@ interface UsuarioDocument extends Document {
   cpf: string;
   telefone: string;
   senha: string,
-  endereco: IEndereco;
+  endereco?: IEndereco;
   historico: IHistoricoCompra[];
 }
 
