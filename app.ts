@@ -50,9 +50,9 @@ const swaggerSpec = routingControllersToSpec(getMetadataArgsStorage(), {
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const startServer = () => {
-  app.listen(8080, () => {
-    console.log('Servidor rodando na porta 8080');
-    console.log('Documentação disponível em: http://localhost:8080/docs');
+  app.listen(5002, () => {
+    console.log('Servidor rodando na porta 5002');
+    console.log('Documentação disponível em: http://localhost:5002/docs');
   });
 };
 

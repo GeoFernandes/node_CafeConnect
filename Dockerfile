@@ -13,7 +13,7 @@ RUN rm -rf node_modules
 RUN npm install
 
 # Expõe a porta onde a aplicação será executada
-EXPOSE 8080
+EXPOSE 5002
 
 # Define o comando de inicialização da aplicação
 CMD ["npm", "run", "dev"]
