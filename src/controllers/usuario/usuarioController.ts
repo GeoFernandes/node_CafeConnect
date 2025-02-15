@@ -36,8 +36,8 @@ class UsuarioController {
   async loginDoUsuario(@Body() dadosLogin: ILogin, @Res() res: any): Promise<any> {
     try {
       const resultado = await UsuarioService.verificaDadosLogin(dadosLogin);
-      if (!resultado) {
-        return res.status(401).json({ msg: "Credenciais inválidas." });
+      if (resultado.msg === "Credenciais inválidas.") {
+        return res.status(401).json(resultado);
       }
       return res.status(200).json(resultado);
     } catch (erro) {

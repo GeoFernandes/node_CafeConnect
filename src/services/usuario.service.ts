@@ -53,7 +53,7 @@ class UsuarioService {
 
     if (!usuario || !senhaValida) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      return { msg: "E-mail ou senha incorretos." };
+      return { msg: "Credenciais inválidas." };
     }
 
     const secret = process.env.SECRET as string;
