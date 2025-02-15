@@ -35,8 +35,10 @@ class UsuarioController {
   @OpenAPI({ summary: 'Faz login do usuário', description: 'Autentica o usuário com email e senha' })
   async loginDoUsuario(@Body() dadosLogin: ILogin, @Res() res: any): Promise<any> {
     try {
-      console.log(dadosLogin);
       const resultado = await UsuarioService.verificaDadosLogin(dadosLogin);
+      if (!resultado) {
+        return res.status(401).json({ msg: "Credenciais inválidas." });
+      }
       return res.status(200).json(resultado);
     } catch (erro) {
       console.error("Erro no login:", erro);
