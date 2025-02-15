@@ -1,21 +1,21 @@
-import 'reflect-metadata';
+import bodyParser from 'body-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import bodyParser from 'body-parser';
-import { createExpressServer } from 'routing-controllers';
-import { connectWithRetry } from './src/config/database/database';
-import UsuarioController from './src/controllers/usuario/UsuarioController';
-import swaggerUi from 'swagger-ui-express';
-import { getMetadataArgsStorage } from 'routing-controllers';
+import 'reflect-metadata';
+import { createExpressServer, getMetadataArgsStorage } from 'routing-controllers';
 import { routingControllersToSpec } from 'routing-controllers-openapi';
-import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+import { connectWithRetry } from './src/config/database/database';
+import ProdutoController from './src/controllers/produto/ProdutoController';
+import UsuarioController from './src/controllers/usuario/UsuarioController';
 
 // Inicializa variáveis de ambiente
 dotenv.config();
 
 // Configura o CORS para liberar a origem específica do frontend
 const app = createExpressServer({
-  controllers: [UsuarioController],
+  controllers: [UsuarioController, ProdutoController],
   cors: {
     origin: 'http://localhost:5173', // Permitir o front-end
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
