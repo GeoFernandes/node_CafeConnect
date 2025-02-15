@@ -49,10 +49,12 @@ class UsuarioService {
     if (!dadosLogin.email || !dadosLogin.senha) return { msg: "E-mail e senha são obrigatórios." };
 
     const usuario = await this.acharUsuarioPeloEmail(dadosLogin.email);
-    if (!usuario) return { msg: "Usuário não encontrado." };
+    const senhaValida = usuario ? await bcrypt.compare(dadosLogin.senha, usuario.senha) : false;
 
-    const senhaValida = await bcrypt.compare(dadosLogin.senha, usuario.senha);
-    if (!senhaValida) return { msg: "Senha inválida." };
+    if (!usuario || !senhaValida) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return { msg: "Credenciais inválidas." };
+    }
 
     const secret = process.env.SECRET as string;
     const token = jwt.sign({ id: usuario._id }, secret, { expiresIn: '1d' });
