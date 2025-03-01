@@ -22,6 +22,7 @@ class UsuarioService {
       cpf: cpfHash,
       telefone: telefoneHash,
       senha: senhaHash,
+      endereco: dadoUsuario.endereco || {},
       historico: dadoUsuario.historico || []
     });
 

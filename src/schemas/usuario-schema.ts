@@ -2,6 +2,7 @@ import { Schema, model, Document } from 'mongoose';
 import { IEndereco, IHistoricoCompra } from '../shared/interface';
 import { enderecoSchema } from './endereco-schema';
 import { historicoSchema } from './historico-compras-schema';
+import { ObjectFlags } from 'typescript';
 
 interface UsuarioDocument extends Document {
   nome: string;
@@ -19,7 +20,7 @@ const usuarioSchema = new Schema<UsuarioDocument>({
   cpf: { type: String, required: true },
   telefone: { type: String, required: true },
   senha: {type: String, required: true },
-  endereco: { type: String, required: false },
+  endereco: { type: Object, required: false },
   historico: [historicoSchema]
 });
 

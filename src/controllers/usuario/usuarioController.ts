@@ -24,6 +24,7 @@ class UsuarioController {
   async registroDeUsuario(@Body() dadoUsuario: IUsuario, @Res() res: any): Promise<any> {
     try {
       // Descriptografar os dados recebidos
+      console.log(dadoUsuario);
       dadoUsuario.email = decryptData(dadoUsuario.email);
       dadoUsuario.nome = decryptData(dadoUsuario.nome);
       dadoUsuario.senha = decryptData(dadoUsuario.senha);
