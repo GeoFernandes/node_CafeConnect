@@ -3,7 +3,7 @@ import { ILogin, IUsuario } from '../../shared/interface';
 import UsuarioService from '../../services/usuario.service';
 import { Usuario } from '../../schemas/usuario-schema';
 import mongoose from 'mongoose';
-import { verificaToken } from '../../autenticacao/auth.middleware';
+import authMiddleware from '../../autenticacao/auth.middleware';
 import { OpenAPI } from 'routing-controllers-openapi';
 import CryptoJS from 'crypto-js';
 
@@ -67,8 +67,19 @@ class UsuarioController {
     }
   }
 
+  @Get("/auth/user")
+  @UseBefore(authMiddleware)
+  async getUser(@Res() res: any) {
+      try {
+          return res.status(200).json(res.req.user);
+      } catch (erro) {
+          return res.status(500).json({ msg: "Erro ao buscar usuário." });
+      }
+  }
+
+
   @Get("/user/:id")
-  @UseBefore(verificaToken)
+  @UseBefore(authMiddleware)
   @OpenAPI({ summary: 'Obtém informações do usuário', description: 'Busca as informações de um usuário pelo ID' })
   async informacoesUsuario(@Params() params: { id: string }, @Res() res: any): Promise<any> {
     const { id } = params;
@@ -92,7 +103,7 @@ class UsuarioController {
   }
 
   @Delete("/user/:id")
-  @UseBefore(verificaToken)
+  @UseBefore(authMiddleware)
   @OpenAPI({ summary: 'Exclui informações do usuário', description: 'Exclui as informações de um usuário pelo ID' })
   async deletaUsuario(@Params() params: { id: string }, @Res() res: any): Promise<any> {
     const { id } = params;
