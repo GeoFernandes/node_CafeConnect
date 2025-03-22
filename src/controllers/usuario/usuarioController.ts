@@ -23,8 +23,6 @@ class UsuarioController {
   @OpenAPI({ summary: 'Registra um novo usuário', description: 'Cria um novo usuário com os dados fornecidos' })
   async registroDeUsuario(@Body() dadoUsuario: IUsuario, @Res() res: any): Promise<any> {
     try {
-      // Descriptografar os dados recebidos
-      console.log(dadoUsuario);
       dadoUsuario.email = decryptData(dadoUsuario.email);
       dadoUsuario.nome = decryptData(dadoUsuario.nome);
       dadoUsuario.senha = decryptData(dadoUsuario.senha);
