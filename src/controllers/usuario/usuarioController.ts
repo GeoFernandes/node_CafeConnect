@@ -7,7 +7,7 @@ import authMiddleware from '../../autenticacao/auth.middleware';
 import { OpenAPI } from 'routing-controllers-openapi';
 import CryptoJS from 'crypto-js';
 
-const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key'; // Use a mesma chave secreta usada no front-end
+const SECRET_KEY = 'default-secret-key';
 
 const decryptData = (data: string) => {
   const bytes = CryptoJS.AES.decrypt(data, SECRET_KEY);
