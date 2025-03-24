@@ -32,7 +32,6 @@ class ProdutoController {
     @HttpCode(201)
     @OpenAPI({ summary: 'Registra um novo produto', description: 'Cria um novo produto com os dados fornecidos' })
     async cadastroDeProduto(@Body() dadosProduto: IProduto) {
-        console.log('Dados do produto:', dadosProduto);
         try {
             const produto = await ProdutoService.cadastrarProduto(dadosProduto);
             return { message: 'Produto cadastrado com sucesso!' };
