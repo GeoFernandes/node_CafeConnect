@@ -10,7 +10,7 @@ export default class CarrinhoController {
     @OpenAPI({ summary: 'Obtém o carrinho do usuário', description: 'Retorna os produtos do carrinho do usuário logado' })
     async obterCarrinho(@CurrentUser() user: any) {
         try {
-            const carrinho = await CarrinhoService.listarCarrinhoPorId(user.id);
+            const carrinho = await CarrinhoService.listarCarrinhoPorId(user._id);
             return { success: true, data: carrinho };
         } catch (e) {
             return { success: false, message: 'Erro ao listar produtos.', error: (e as any).message };

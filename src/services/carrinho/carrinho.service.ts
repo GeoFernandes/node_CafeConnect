@@ -7,11 +7,33 @@ import { Usuario } from "../../schemas/usuario-schema";
 
 class CarrinhoService {
     async listarCarrinhoPorId(idUsuario: string) {
-
-        const carrinho = await Carrinho.findOne({ usuarioId: idUsuario });
+        const carrinho = await Carrinho.findOne({ userId: idUsuario });
+        
         if (!carrinho) throw new Error('Carrinho não encontrado.');
-        let itensCarrinhos = await ItemCarrinho.find({ carrinhoId: carrinho._id }).populate('produtoId');
-        return itensCarrinhos;  
+        let itensCarrinhos = await ItemCarrinho.find({ carrinhoId: carrinho._id }).lean();
+        if (!itensCarrinhos.length) return [];
+
+        const produtosIds = itensCarrinhos.map(item => item.produtoId);
+        const produtos = await Produto.find({ _id: { $in: produtosIds } }).lean();
+    
+        const produtosMap = produtos.reduce((acc, produto) => {
+            acc[produto._id.toString()] = produto;
+            return acc;
+        }, {} as Record<string, any>);
+    
+        const carrinhoFormatado = itensCarrinhos.map(item => {
+            const produto = produtosMap[item.produtoId.toString()];
+    
+            return {
+                id: produto._id,
+                title: produto.titulo,
+                price: produto.preco,
+                imageSrc: produto.imagem,
+                quantity: item.quantidade
+            };
+        });
+    
+        return carrinhoFormatado; 
     }
 
     public async adicionarProdutoAoCarrinho(idUsuario: string, idProduto: string, quantidade: number) {
