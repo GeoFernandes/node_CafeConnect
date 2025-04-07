@@ -13,18 +13,23 @@ class ProdutoController {
             const produtos = await ProdutoService.listarProdutos();
             return produtos;
         } catch (e) {
-            return { message: 'Erro ao listar produtos.' };
+            return { message: 'Erro ao listar produtos.', error: (e as any).message };
         }
     }
 
     @Get("/product/:id")
     @OpenAPI({ summary: 'Obtém informações do produto', description: 'Busca as informações de um produto' })
     async informacoesProduto(@Params() params: { id: string }) {
+        console.log('ID do produto recebido:', params.id); // Log para depuração
         try {
-            const produtos = await ProdutoService.listarProdutoPorId(params.id);
-            return produtos;
+            const produto = await ProdutoService.listarProdutoPorId(params.id);
+            console.log("Produto:", produto); // Log para depuração
+            if (!produto) {
+                return { message: 'Produto não encontrado.' };
+            }
+            return produto;
         } catch (e) {
-            return { message: 'Erro ao listar produto.' };
+            return { message: 'Erro ao listar produto.', error: (e as any).message };
         }
     }
 
@@ -33,7 +38,7 @@ class ProdutoController {
     @OpenAPI({ summary: 'Registra um novo produto', description: 'Cria um novo produto com os dados fornecidos' })
     async cadastroDeProduto(@Body() dadosProduto: IProduto) {
         try {
-            const produto = await ProdutoService.cadastrarProduto(dadosProduto);
+            await ProdutoService.cadastrarProduto(dadosProduto);
             return { message: 'Produto cadastrado com sucesso!' };
         } catch (e: any) {
             console.error('Erro ao cadastrar o produto:', e);
@@ -46,11 +51,14 @@ class ProdutoController {
     @OpenAPI({ summary: 'Altera as informações de um produto', description: 'Altera as informações do produto pelo ID' })
     async alterarProduto(@Params() params: { id: string }, @Body() dadosProduto: IProduto) {
         try {
-            const produto = await ProdutoService.alterarProduto(dadosProduto, params.id);
+            const produtoAtualizado = await ProdutoService.alterarProduto(dadosProduto, params.id);
+            if (!produtoAtualizado) {
+                return { message: 'Produto não encontrado para atualizar.' };
+            }
             return { message: 'Produto alterado com sucesso!' };
         } catch (e: any) {
             console.error('Erro ao atualizar o produto:', e);
-            return { message: 'Erro ao atualizar o produto:', error: e.message };
+            return { message: 'Erro ao atualizar o produto.', error: e.message };
         }
     }
 
@@ -63,7 +71,7 @@ class ProdutoController {
             return { message: 'Produto deletado com sucesso!' };
         } catch (e: any) {
             console.error('Erro ao deletar o produto:', e);
-            return { message: 'Erro ao deletar o produto:', error: e.message };
+            return { message: 'Erro ao deletar o produto.', error: e.message };
         }
     }
 

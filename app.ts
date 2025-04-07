@@ -9,13 +9,17 @@ import swaggerUi from 'swagger-ui-express';
 import { connectWithRetry } from './src/config/database/database';
 import ProdutoController from './src/controllers/produto/ProdutoController';
 import UsuarioController from './src/controllers/usuario/UsuarioController';
+import CarrinhoController from './src/controllers/carrinho/carrinhoControler';
+import { authorizationChecker, currentUserChecker } from './src/autenticacao/authorization';
 
 // Inicializa variáveis de ambiente
 dotenv.config();
 
 // Configura o CORS para liberar a origem específica do frontend
 const app = createExpressServer({
-  controllers: [UsuarioController, ProdutoController],
+  controllers: [UsuarioController, ProdutoController, CarrinhoController],
+  authorizationChecker,
+  currentUserChecker,
   cors: {
     origin: 'http://localhost:5173', // Permitir o front-end
     methods: ['GET', 'POST', 'PUT', 'DELETE'],

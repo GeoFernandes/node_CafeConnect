@@ -7,7 +7,7 @@ import authMiddleware from '../../autenticacao/auth.middleware';
 import { OpenAPI } from 'routing-controllers-openapi';
 import CryptoJS from 'crypto-js';
 
-const SECRET_KEY = 'default-secret-key';
+const SECRET_KEY = 'default-secret-key'; //Ajustar depois
 
 const decryptData = (data: string) => {
   const bytes = CryptoJS.AES.decrypt(data, SECRET_KEY);
