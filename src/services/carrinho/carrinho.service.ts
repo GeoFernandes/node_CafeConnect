@@ -25,7 +25,7 @@ class CarrinhoService {
             const produto = produtosMap[item.produtoId.toString()];
     
             return {
-                id: produto._id,
+                id: produto._id.toString(),
                 title: produto.titulo,
                 price: produto.preco,
                 imageSrc: produto.imagem,
