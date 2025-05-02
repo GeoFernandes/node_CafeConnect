@@ -36,7 +36,7 @@ export default class CarrinhoController {
     @OpenAPI({ summary: 'Remove um produto do carrinho', description: 'Remove um produto do carrinho do usuário logado' })
     async removerProduto(@CurrentUser() user: any, @Body() dados: { idProduto: string }) {
         try {
-            await CarrinhoService.removerProdutoDoCarrinho(user.id, dados.idProduto);
+            await CarrinhoService.removerProdutoDoCarrinho(user._id, dados.idProduto);
             return { success: true, message: 'Produto removido do carrinho com sucesso!' };
         } catch (e) {
             return { success: false, message: 'Erro ao remover o produto do carrinho.', error: (e as any).message };

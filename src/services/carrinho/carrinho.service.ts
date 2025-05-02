@@ -98,14 +98,18 @@ class CarrinhoService {
         const produto = await Produto.findById(idProduto);
         if (!produto) throw new Error('Produto não encontrado.');
     
-        const carrinho = await Carrinho.findOne({ usuarioId: idUsuario });
+        const carrinho = await Carrinho.findOne({ userId: idUsuario });
         if (!carrinho) throw new Error('Carrinho não encontrado.');
     
         const itemCarrinho = await ItemCarrinho.findOne({ carrinhoId: carrinho._id, produtoId: idProduto });
         if (!itemCarrinho) throw new Error('Produto não encontrado no carrinho.');
     
+        // Remove o item do carrinho
         await itemCarrinho.deleteOne();
-        return itemCarrinho;
+    
+        // Atualiza o array de itens no carrinho
+        carrinho.items = carrinho.items.filter(itemId => itemId.toString() !== itemCarrinho._id.toString());
+        await carrinho.save();
     }
 
 }
