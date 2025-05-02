@@ -1,47 +1,45 @@
-import { Body, Delete, Get, HttpCode, JsonController, Params, Post } from 'routing-controllers';
+import { Body, Delete, Get, HttpCode, JsonController, Post, Authorized, CurrentUser } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import CarrinhoService from '../../services/carrinho/carrinho.service';
 
-@JsonController()
-class CarrinhoController {
+@JsonController("/carrinho")
+export default class CarrinhoController {
 
-    @Get("/carrinho/:id")
-    @OpenAPI({ summary: 'Obtém informações do carrinho', description: 'Busca as informações do carrinho pelo ID do usuário' })
-    async informacoesCarrinho(@Params() params: { id: string }) {
+    @Get("/")
+    @Authorized()
+    @OpenAPI({ summary: 'Obtém o carrinho do usuário', description: 'Retorna os produtos do carrinho do usuário logado' })
+    async obterCarrinho(@CurrentUser() user: any) {
         try {
-            const carrinho = await CarrinhoService.listarCarrinhoPorId(params.id);
-            return carrinho;
+            const carrinho = await CarrinhoService.listarCarrinhoPorId(user._id);
+            return { success: true, data: carrinho };
         } catch (e) {
-            return { message: 'Erro ao listar produtos.' };
+            return { success: false, message: 'Erro ao listar produtos.', error: (e as any).message };
         }
     }
 
-    @Post("/add-product")
+    @Post("/adicionar")
     @HttpCode(201)
-    @OpenAPI({ summary: 'Adiciona um produto ao carrinho', description: 'Adiciona um produto ao carrinho do usuário' })
-    async adicionarProduto(@Body() dadosProduto: { idUsuario: string, idProduto: string, quantidade: number }) {
+    @Authorized()
+    @OpenAPI({ summary: 'Adiciona um produto ao carrinho', description: 'Adiciona um produto ao carrinho do usuário logado' })
+    async adicionarProduto(@CurrentUser() user: any, @Body() dados: { idProduto: string, quantidade: number }) {
         try {
-            const produto = await CarrinhoService.adicionarProdutoAoCarrinho(dadosProduto.idUsuario, dadosProduto.idProduto, dadosProduto.quantidade);
-            return { message: 'Produto adicionado ao carrinho com sucesso!' };
-        } catch (e: any) {
-            console.error('Erro ao adicionar o produto ao carrinho:', e);
-            return { message: 'Erro ao adicionar o produto ao carrinho.', error: e.message };
+            await CarrinhoService.adicionarProdutoAoCarrinho(user.id, dados.idProduto, dados.quantidade);
+            return { success: true, message: 'Produto adicionado ao carrinho com sucesso!' };
+        } catch (e) {
+            return { success: false, message: 'Erro ao adicionar o produto ao carrinho.', error: (e as any).message };
         }
     }
 
-    @Delete("/remove-product")
-    @HttpCode(204)
-    @OpenAPI({ summary: 'Remove um produto do carrinho', description: 'Remove um produto do carrinho do usuário' })
-    async removerProduto(@Body() dadosProduto: { idUsuario: string, idProduto: string }) {
+    @Delete("/remover")
+    @HttpCode(200)
+    @Authorized()
+    @OpenAPI({ summary: 'Remove um produto do carrinho', description: 'Remove um produto do carrinho do usuário logado' })
+    async removerProduto(@CurrentUser() user: any, @Body() dados: { idProduto: string }) {
         try {
-            await CarrinhoService.removerProdutoDoCarrinho(dadosProduto.idUsuario, dadosProduto.idProduto);
-            return { message: 'Produto removido do carrinho com sucesso!' };
-        } catch (e: any) {
-            console.error('Erro ao remover o produto do carrinho:', e);
-            return { message: 'Erro ao remover o produto do carrinho:', error: e.message };
+            await CarrinhoService.removerProdutoDoCarrinho(user._id, dados.idProduto);
+            return { success: true, message: 'Produto removido do carrinho com sucesso!' };
+        } catch (e) {
+            return { success: false, message: 'Erro ao remover o produto do carrinho.', error: (e as any).message };
         }
     }
-    
 }
-
-export default CarrinhoController;

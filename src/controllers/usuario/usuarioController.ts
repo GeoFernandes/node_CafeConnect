@@ -1,4 +1,4 @@
-import { Post, Body, HttpCode, Controller, Res, Get, Params, UseBefore, Delete, JsonController } from 'routing-controllers';
+import { Post, Body, HttpCode, Controller, Res, Get, Params, UseBefore, Delete, JsonController, Put } from 'routing-controllers';
 import { ILogin, IUsuario } from '../../shared/interface';
 import UsuarioService from '../../services/usuario.service';
 import { Usuario } from '../../schemas/usuario-schema';
@@ -7,7 +7,7 @@ import authMiddleware from '../../autenticacao/auth.middleware';
 import { OpenAPI } from 'routing-controllers-openapi';
 import CryptoJS from 'crypto-js';
 
-const SECRET_KEY = 'default-secret-key';
+const SECRET_KEY = 'default-secret-key'; //Ajustar depois
 
 const decryptData = (data: string) => {
   const bytes = CryptoJS.AES.decrypt(data, SECRET_KEY);
@@ -65,6 +65,34 @@ class UsuarioController {
     }
   }
 
+  @Put("/auth/user")
+
+  @OpenAPI({ 
+    summary: 'Atualiza informações do usuário', 
+    description: 'Permite que o usuário logado atualize suas informações pessoais' 
+  })
+  async atualizaUsuario(@Body() dadosAtualizados: Partial<IUsuario>, @Res() res: any): Promise<any> {
+    try {
+      const userId = res.req.user._id; // Obtém o ID do usuário autenticado do middleware
+
+      // Atualizar o usuário no banco de dados diretamente
+      const usuarioAtualizado = await Usuario.findByIdAndUpdate(
+        userId,
+        { $set: dadosAtualizados }, // Atualiza diretamente os dados fornecidos
+        { new: true, runValidators: true, select: "-senha" } // Retorna o documento atualizado sem a senha
+      );
+
+      if (!usuarioAtualizado) {
+        return res.status(404).json({ msg: "Usuário não encontrado." });
+      }
+
+      return res.status(200).json({ msg: "Informações atualizadas com sucesso.", usuario: usuarioAtualizado });
+    } catch (erro) {
+      console.error("Erro ao atualizar informações do usuário:", erro);
+      return res.status(500).json({ msg: "Erro ao atualizar informações do usuário." });
+    }
+  }
+
   @Get("/auth/user")
   @UseBefore(authMiddleware)
   async getUser(@Res() res: any) {
@@ -87,7 +115,7 @@ class UsuarioController {
     }
 
     try {
-      const usuario = await Usuario.findById(id, '-senha').lean();
+      const usuario = await Usuario.findById(id, "-cpf").lean();
 
       if (!usuario) {
         return res.status(404).json({ msg: "Usuário não encontrado." });
