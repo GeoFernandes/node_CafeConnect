@@ -57,8 +57,14 @@ class UsuarioService {
       return { msg: "Credenciais inválidas." };
     }
 
+    const carrinho = await require("../schemas/carrinho/carrinho-schema").Carrinho.findOne({ userId: usuario._id });
+
     const secret = process.env.SECRET as string;
-    const token = jwt.sign({ id: usuario._id }, secret, { expiresIn: '1d' });
+    const token = jwt.sign(
+      { id: usuario._id, carrinhoId: carrinho ? carrinho._id : null },
+      secret,
+      { expiresIn: '1d' }
+    );
 
     return { msg: "Login realizado com sucesso.", token };
   }

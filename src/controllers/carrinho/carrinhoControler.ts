@@ -1,4 +1,4 @@
-import { Body, Delete, Get, HttpCode, JsonController, Post, Authorized, CurrentUser } from 'routing-controllers';
+import { Body, Delete, Get, HttpCode, JsonController, Post, Authorized, CurrentUser, Put, Param } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import CarrinhoService from '../../services/carrinho/carrinho.service';
 
@@ -27,6 +27,22 @@ export default class CarrinhoController {
             return { success: true, message: 'Produto adicionado ao carrinho com sucesso!' };
         } catch (e) {
             return { success: false, message: 'Erro ao adicionar o produto ao carrinho.', error: (e as any).message };
+        }
+    }
+
+    @Put("/atualizar/:idCarrinho")
+    @HttpCode(200)
+    @Authorized()
+    @OpenAPI({ summary: 'Atualiza o carrinho', description: 'Atualiza as informações do carrinho pelo ID' })
+    async atualizarCarrinho(
+        @Param("idCarrinho") idCarrinho: string,
+        @Body() dados: { itens: { produtoId: string, quantidade: number }[] }
+    ) {
+        try {
+            const resultado = await CarrinhoService.atualizarCarrinho(idCarrinho, dados.itens);
+            return { success: true, message: resultado.message, data: resultado.carrinho };
+        } catch (e) {
+            return { success: false, message: 'Erro ao atualizar o carrinho.', error: (e as any).message };
         }
     }
 
