@@ -1,3 +1,4 @@
+import PagamentoController from './src/controllers/pagamento/pagamentoController';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -17,7 +18,7 @@ dotenv.config();
 
 // Configura o CORS para liberar a origem específica do frontend
 const app = createExpressServer({
-  controllers: [UsuarioController, ProdutoController, CarrinhoController],
+  controllers: [UsuarioController, ProdutoController, CarrinhoController, PagamentoController],
   authorizationChecker,
   currentUserChecker,
   cors: {
