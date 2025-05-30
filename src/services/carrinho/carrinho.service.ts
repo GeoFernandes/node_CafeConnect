@@ -90,6 +90,47 @@ class CarrinhoService {
         }
     }
     
+    public async atualizarCarrinho(idCarrinho: string, itensAtualizados: { produtoId: string, quantidade: number }[]) {
+    const carrinho = await Carrinho.findById(idCarrinho);
+    if (!carrinho) throw new Error('Carrinho não encontrado.');
+
+    for (const item of itensAtualizados) {
+        const { produtoId, quantidade } = item;
+
+        // Verifica se o produto existe
+        const produto = await Produto.findById(produtoId);
+        if (!produto) throw new Error(`Produto com ID ${produtoId} não encontrado.`);
+
+        // Verifica se o item já existe no carrinho
+        let itemCarrinho = await ItemCarrinho.findOne({
+            carrinhoId: carrinho._id,
+            produtoId: produtoId
+        });
+
+        if (itemCarrinho) {
+            // Atualiza a quantidade se já existir
+            itemCarrinho.quantidade = quantidade;
+            await itemCarrinho.save();
+        } else {
+            // Cria novo item
+            itemCarrinho = new ItemCarrinho({
+                carrinhoId: carrinho._id,
+                produtoId: produtoId,
+                quantidade
+            });
+            await itemCarrinho.save();
+        }
+    }
+
+    await carrinho.save();
+
+    return {
+        success: true,
+        message: 'Carrinho atualizado com sucesso.',
+        carrinho
+    };
+}
+
 
     public async removerProdutoDoCarrinho(idUsuario: string, idProduto: string) {
         const usuario = await Usuario.findById(idUsuario);
@@ -115,3 +156,4 @@ class CarrinhoService {
 }
 
 export default new CarrinhoService();
+          
