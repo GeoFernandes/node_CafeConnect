@@ -30,17 +30,17 @@ export default class CarrinhoController {
         }
     }
 
-    @Put("/atualizar/:idCarrinho")
+    @Put("/atualizar/:idUsuario")
     @HttpCode(200)
     @Authorized()
     @OpenAPI({ summary: 'Atualiza o carrinho', description: 'Atualiza as informações do carrinho pelo ID' })
     async atualizarCarrinho(
-        @Param("idCarrinho") idCarrinho: string,
-        @Body() dados: { itens: { produtoId: string, quantidade: number }[] }
+        @Param("idUsuario") idUsuario: string,
+        @Body() dados: { itemsArray: { produtoId: string, quantidade: number }[] }
     ) {
         try {
-            const resultado = await CarrinhoService.atualizarCarrinho(idCarrinho, dados.itens);
-            return { success: true, message: resultado.message, data: resultado.carrinho };
+            const resultado = await CarrinhoService.atualizarCarrinho(idUsuario, dados.itemsArray);
+            return { success: true, message: resultado.message };
         } catch (e) {
             return { success: false, message: 'Erro ao atualizar o carrinho.', error: (e as any).message };
         }
