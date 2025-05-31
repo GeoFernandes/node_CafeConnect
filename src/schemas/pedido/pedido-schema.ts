@@ -1,6 +1,8 @@
 import mongoose, { Schema, Document } from "mongoose";
+import Contador from "../pedido/contador-schema";
 
 export interface IPedido extends Document {
+  pedidoId: number;
   usuario: mongoose.Types.ObjectId;
   produtos: Array<{
     produtoId: mongoose.Types.ObjectId;
@@ -24,6 +26,7 @@ export interface IPedido extends Document {
 }
 
 const PedidoSchema = new Schema<IPedido>({
+  pedidoId: { type: Number, unique: true },
   usuario: { type: Schema.Types.ObjectId, ref: "Usuario", required: true },
   produtos: [
     {
@@ -46,6 +49,18 @@ const PedidoSchema = new Schema<IPedido>({
     cep: String,
   },
   codigoRastreamento: String,
+});
+
+PedidoSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const counter = await Contador.findOneAndUpdate(
+      { model: "Pedido" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    this.pedidoId = counter.seq;
+  }
+  next();
 });
 
 export default mongoose.model<IPedido>("Pedido", PedidoSchema);
