@@ -11,6 +11,7 @@ import { connectWithRetry } from './src/config/database/database';
 import ProdutoController from './src/controllers/produto/ProdutoController';
 import UsuarioController from './src/controllers/usuario/UsuarioController';
 import CarrinhoController from './src/controllers/carrinho/carrinhoControler';
+import PedidoController from './src/controllers/pedido/pedidoController';
 import { authorizationChecker, currentUserChecker } from './src/autenticacao/authorization';
 
 // Inicializa variáveis de ambiente
@@ -18,7 +19,7 @@ dotenv.config();
 
 // Configura o CORS para liberar a origem específica do frontend
 const app = createExpressServer({
-  controllers: [UsuarioController, ProdutoController, CarrinhoController, PagamentoController],
+  controllers: [UsuarioController, ProdutoController, CarrinhoController, PagamentoController, PedidoController],
   authorizationChecker,
   currentUserChecker,
   cors: {
