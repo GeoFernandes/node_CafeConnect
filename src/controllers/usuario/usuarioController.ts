@@ -5,14 +5,10 @@ import { Usuario } from '../../schemas/usuario-schema';
 import mongoose from 'mongoose';
 import authMiddleware from '../../autenticacao/auth.middleware';
 import { OpenAPI } from 'routing-controllers-openapi';
-import CryptoJS from 'crypto-js';
+import { decrypt } from '../../shared/crypto/crypto';
+import usuarioService from '../../services/usuario.service';
 
 const SECRET_KEY = 'default-secret-key'; //Ajustar depois
-
-const decryptData = (data: string) => {
-  const bytes = CryptoJS.AES.decrypt(data, SECRET_KEY);
-  return bytes.toString(CryptoJS.enc.Utf8);
-};
 
 @Controller()
 @JsonController()
@@ -23,12 +19,12 @@ class UsuarioController {
   @OpenAPI({ summary: 'Registra um novo usuário', description: 'Cria um novo usuário com os dados fornecidos' })
   async registroDeUsuario(@Body() dadoUsuario: IUsuario, @Res() res: any): Promise<any> {
     try {
-      dadoUsuario.email = decryptData(dadoUsuario.email);
-      dadoUsuario.nome = decryptData(dadoUsuario.nome);
-      dadoUsuario.senha = decryptData(dadoUsuario.senha);
-      dadoUsuario.cpf = decryptData(dadoUsuario.cpf);
-      dadoUsuario.telefone = decryptData(dadoUsuario.telefone);
-      dadoUsuario.confirmarSenha = decryptData(dadoUsuario.confirmarSenha);
+      dadoUsuario.email = decrypt(dadoUsuario.email);
+      dadoUsuario.nome = decrypt(dadoUsuario.nome);
+      dadoUsuario.senha = decrypt(dadoUsuario.senha);
+      dadoUsuario.cpf = decrypt(dadoUsuario.cpf);
+      dadoUsuario.telefone = decrypt(dadoUsuario.telefone);
+      dadoUsuario.confirmarSenha = decrypt(dadoUsuario.confirmarSenha);
 
       const dadosValidos = await UsuarioService.validaDadosUsuario(dadoUsuario);
       if (!dadosValidos) return res.status(400).json({ msg: "Preencha todos os campos obrigatórios corretamente." });
@@ -50,10 +46,6 @@ class UsuarioController {
   @OpenAPI({ summary: 'Faz login do usuário', description: 'Autentica o usuário com email e senha' })
   async loginDoUsuario(@Body() dadosLogin: ILogin, @Res() res: any): Promise<any> {
     try {
-      // Descriptografar os dados recebidos
-      dadosLogin.email = decryptData(dadosLogin.email);
-      dadosLogin.senha = decryptData(dadosLogin.senha);
-
       const resultado = await UsuarioService.verificaDadosLogin(dadosLogin);
       if (resultado.msg === "Credenciais inválidas.") {
         return res.status(401).json(resultado);
@@ -66,7 +58,6 @@ class UsuarioController {
   }
 
   @Put("/auth/user")
-
   @OpenAPI({ 
     summary: 'Atualiza informações do usuário', 
     description: 'Permite que o usuário logado atualize suas informações pessoais' 
@@ -74,7 +65,11 @@ class UsuarioController {
   async atualizaUsuario(@Body() dadosAtualizados: Partial<IUsuario>, @Res() res: any): Promise<any> {
     try {
       const userId = res.req.user._id; // Obtém o ID do usuário autenticado do middleware
+      console.log("ID do usuário autenticado:", userId);
+      console.log("Dados recebidos para atualização:", dadosAtualizados);
 
+      console.log("Dados recebidos para atualização:", dadosAtualizados);
+      console.log("ID do usuário autenticado:", userId);
       // Atualizar o usuário no banco de dados diretamente
       const usuarioAtualizado = await Usuario.findByIdAndUpdate(
         userId,
@@ -115,7 +110,7 @@ class UsuarioController {
     }
 
     try {
-      const usuario = await Usuario.findById(id, "-cpf").lean();
+      const usuario = await usuarioService.obterUsuarioPorId(id);
 
       if (!usuario) {
         return res.status(404).json({ msg: "Usuário não encontrado." });
