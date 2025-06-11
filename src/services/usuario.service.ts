@@ -1,8 +1,8 @@
 import { Usuario } from "../schemas/usuario-schema";
 import { ILogin, IUsuario } from "../shared/interface";
 import { isEmailValid, validaCampos } from '../shared/validações/valida-email';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { encrypt, decrypt } from '../shared/crypto/crypto';
 
 class UsuarioService {
   public async acharUsuarioPeloEmail(email: string) {
@@ -10,17 +10,17 @@ class UsuarioService {
   }
 
   public async criarUsuario(dadoUsuario: IUsuario) {
-    const senhaHash = await this.hashSenha(dadoUsuario.senha);
-
-    const cpfHash = await this.hashDados(dadoUsuario.cpf);
-    const telefoneHash = await this.hashDados(dadoUsuario.telefone);
+    const senhaCripto = encrypt(dadoUsuario.senha);
+    const nomeCripto = encrypt(dadoUsuario.nome);
+    const cpfCripto = encrypt(dadoUsuario.cpf);
+    const telefoneCripto = encrypt(dadoUsuario.telefone);
 
     const novoUsuario = new Usuario({
-      nome: dadoUsuario.nome,
+      nome: nomeCripto,
       email: dadoUsuario.email,
-      cpf: cpfHash,
-      telefone: telefoneHash,
-      senha: senhaHash,
+      cpf: cpfCripto,
+      telefone: telefoneCripto,
+      senha: senhaCripto,
       endereco: dadoUsuario.endereco || {},
       historico: dadoUsuario.historico || []
     });
@@ -36,20 +36,17 @@ class UsuarioService {
     return camposValidados && emailValido && senhaValida;
   }
 
-  private async hashSenha(senha: string): Promise<string> {
-    const salt = await bcrypt.genSalt(12);
-    return bcrypt.hash(senha, salt);
-  }
+  public async verificaDadosLogin(dadosCriptografado: ILogin): Promise<{ msg: string, token?: string }> {
+    let dadosLogin: ILogin = { email: "", senha: "" };
+    dadosLogin.email = decrypt(dadosCriptografado.email);
+    dadosLogin.senha = decrypt(dadosCriptografado.senha);
 
-  private async hashDados(data: string): Promise<string> {
-    return bcrypt.hash(data, 14);
-  }
-
-  public async verificaDadosLogin(dadosLogin: ILogin): Promise<{ msg: string, token?: string }> {
+    console.log("Dados de login descriptografados:", dadosLogin);
     if (!dadosLogin.email || !dadosLogin.senha) return { msg: "E-mail e senha são obrigatórios." };
 
     const usuario = await this.acharUsuarioPeloEmail(dadosLogin.email);
-    const senhaValida = usuario ? await bcrypt.compare(dadosLogin.senha, usuario.senha) : false;
+    // Descriptografa a senha para comparar
+    const senhaValida = usuario && decrypt(usuario.senha) === dadosLogin.senha;
 
     if (!usuario || !senhaValida) {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -67,6 +64,21 @@ class UsuarioService {
 
     return { msg: "Login realizado com sucesso.", token };
   }
+
+  //fazer função para retornar as informações do usuário
+  public async obterUsuarioPorId(id: string) {
+    if (!id) throw new Error("ID do usuário não fornecido.");
+
+    const usuario = await Usuario.findById(id, "-cpf").lean();
+    if (!usuario) throw new Error("Usuário não encontrado.");
+
+    usuario.nome = usuario.nome;
+    usuario.telefone = decrypt(usuario.telefone);
+    usuario.senha = decrypt(usuario.senha);
+
+    return usuario;
+  }
+
 }
 
 export default new UsuarioService();
