@@ -11,13 +11,12 @@ class UsuarioService {
 
   public async criarUsuario(dadoUsuario: IUsuario) {
     const senhaHash = await this.hashSenha(dadoUsuario.senha);
-    
-    const nomeHash = await this.hashDados(dadoUsuario.nome);
+
     const cpfHash = await this.hashDados(dadoUsuario.cpf);
     const telefoneHash = await this.hashDados(dadoUsuario.telefone);
 
     const novoUsuario = new Usuario({
-      nome: nomeHash,
+      nome: dadoUsuario.nome,
       email: dadoUsuario.email,
       cpf: cpfHash,
       telefone: telefoneHash,
