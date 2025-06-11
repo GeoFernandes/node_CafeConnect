@@ -72,7 +72,7 @@ class UsuarioService {
     const usuario = await Usuario.findById(id, "-cpf").lean();
     if (!usuario) throw new Error("Usuário não encontrado.");
 
-    usuario.nome = decrypt(usuario.nome);
+    usuario.nome = usuario.nome;
     usuario.telefone = decrypt(usuario.telefone);
     usuario.senha = decrypt(usuario.senha);
 
