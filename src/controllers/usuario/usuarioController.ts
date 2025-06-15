@@ -19,8 +19,8 @@ class UsuarioController {
   @OpenAPI({ summary: 'Registra um novo usuário', description: 'Cria um novo usuário com os dados fornecidos' })
   async registroDeUsuario(@Body() dadoUsuario: IUsuario, @Res() res: any): Promise<any> {
     try {
-      dadoUsuario.email = decrypt(dadoUsuario.email);
-      dadoUsuario.nome = decrypt(dadoUsuario.nome);
+      dadoUsuario.email = dadoUsuario.email;
+      dadoUsuario.nome = dadoUsuario.nome;
       dadoUsuario.senha = decrypt(dadoUsuario.senha);
       dadoUsuario.cpf = decrypt(dadoUsuario.cpf);
       dadoUsuario.telefone = decrypt(dadoUsuario.telefone);
@@ -31,7 +31,7 @@ class UsuarioController {
 
       const userExists = await UsuarioService.acharUsuarioPeloEmail(dadoUsuario.email);
       if (userExists) return res.status(409).json({ msg: "Usuário já existe" });
-
+      
       await UsuarioService.criarUsuario(dadoUsuario);
 
       return res.status(201).json({ msg: "Usuário criado com sucesso!" });
