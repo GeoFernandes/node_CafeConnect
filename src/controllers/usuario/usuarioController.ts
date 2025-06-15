@@ -58,6 +58,7 @@ class UsuarioController {
   }
 
   @Put("/auth/user")
+  @UseBefore(authMiddleware)
   @OpenAPI({ 
     summary: 'Atualiza informações do usuário', 
     description: 'Permite que o usuário logado atualize suas informações pessoais' 
