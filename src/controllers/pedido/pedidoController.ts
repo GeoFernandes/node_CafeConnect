@@ -35,7 +35,7 @@ export class PedidoController {
         produtos: await PedidoService.converteProdutos(body.produtos),
         total: body.total,
         enderecoEntrega: body.enderecoEntrega,
-        status: "Em Aberto",
+        status: "em aberto",
         dataPedido: new Date(),
       });
       return res.status(201).json({ msg: "Pedido criado com sucesso!", pedido });
