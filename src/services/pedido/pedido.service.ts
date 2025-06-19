@@ -6,6 +6,9 @@ import { ItemCarrinho, itemCarrinhoSchema } from '../../schemas/carrinho/item-ca
 
 export class PedidoService {
   static async criarPedido(dados: Partial<IPedido>) {
+    if (!dados.rastreamento) {
+      dados.rastreamento = await this.gerarRastreamento();
+    }
     // 1. Cria o pedido
     const pedidoCriado = await Pedido.create(dados);
 
@@ -19,7 +22,6 @@ export class PedidoService {
       // Exclua todos os itens do carrinho com esse carrinhoId
       await ItemCarrinho.deleteMany({ carrinhoId: carrinho._id });
     }
-
 
     // 3. Diminui o estoque dos produtos
     if (dados.produtos && Array.isArray(dados.produtos)) {
@@ -55,5 +57,15 @@ export class PedidoService {
         ...produto,
         produtoId: new mongoose.Types.ObjectId(produto.produtoId)
       }));
+  }
+
+  static async gerarRastreamento() {
+    const numeros = Math.floor(100000000 + Math.random() * 900000000); // 9 dígitos
+    const letra = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Letra A-Z
+    return {
+      codigo: `BR${numeros}${letra}`,
+      status: "Preparando",
+      ultimaAtualizacao: new Date(),
+    };
   }
 }

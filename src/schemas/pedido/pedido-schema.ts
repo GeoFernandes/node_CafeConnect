@@ -22,7 +22,11 @@ export interface IPedido extends Document {
     estado: string;
     cep: string;
   };
-  codigoRastreamento?: string;
+  rastreamento: {
+    codigo: String,
+    status: String,
+    ultimaAtualizacao?: Date,
+  }
 }
 
 const PedidoSchema = new Schema<IPedido>({
@@ -48,7 +52,11 @@ const PedidoSchema = new Schema<IPedido>({
     estado: String,
     cep: String,
   },
-  codigoRastreamento: String,
+  rastreamento: {
+        codigo: String,
+        status: String,
+        ultimaAtualizacao: { type: Date },
+      }
 });
 
 PedidoSchema.pre("save", async function (next) {
