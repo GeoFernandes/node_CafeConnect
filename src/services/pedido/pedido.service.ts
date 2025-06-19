@@ -1,10 +1,37 @@
-import { produto } from './../../schemas/produto/produto-schema';
+import { Produto, produto } from './../../schemas/produto/produto-schema';
 import Pedido, { IPedido } from "../../schemas/pedido/pedido-schema";
 import mongoose from 'mongoose';
+import { Carrinho } from '../../schemas/carrinho/carrinho-schema';
+import { ItemCarrinho, itemCarrinhoSchema } from '../../schemas/carrinho/item-carrinho-schema';
 
 export class PedidoService {
   static async criarPedido(dados: Partial<IPedido>) {
-    return Pedido.create(dados);
+    // 1. Cria o pedido
+    const pedidoCriado = await Pedido.create(dados);
+
+    // 2. Exclui o carrinho do usuário
+    if (dados.usuario) {
+      await Carrinho.deleteOne({ userId: dados.usuario });
+    }
+  
+    const carrinho = await Carrinho.findOne({ userId: dados.usuario });
+    if (carrinho) {
+      // Exclua todos os itens do carrinho com esse carrinhoId
+      await ItemCarrinho.deleteMany({ carrinhoId: carrinho._id });
+    }
+
+
+    // 3. Diminui o estoque dos produtos
+    if (dados.produtos && Array.isArray(dados.produtos)) {
+      for (const item of dados.produtos) {
+        await Produto.updateOne(
+          { _id: item.produtoId },
+          { $inc: { quantidadeEstoque: -item.quantidade } }
+        );
+      }
+    }
+
+    return pedidoCriado;
   }
 
   static async listarPedidosPorUsuario(usuarioId: string) {
