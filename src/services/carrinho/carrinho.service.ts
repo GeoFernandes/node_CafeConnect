@@ -159,6 +159,9 @@ class CarrinhoService {
     
         const itemCarrinho = await ItemCarrinho.findOne({ carrinhoId: carrinho._id, produtoId: idProduto });
         if (!itemCarrinho) throw new Error('Produto não encontrado no carrinho.');
+
+        produto.quantidadeEstoque += itemCarrinho.quantidade;
+        await produto.save();
     
         // Remove o item do carrinho
         await itemCarrinho.deleteOne();
