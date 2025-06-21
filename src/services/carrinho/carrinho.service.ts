@@ -45,12 +45,25 @@ class CarrinhoService {
             // Verifica se o produto existe
             const produto = await Produto.findById(idProduto);
             if (!produto) throw new Error('Produto não encontrado.');
+
+            if (produto.quantidadeEstoque < quantidade) throw new Error('Estoque insuficiente.');
     
             // Busca ou cria o carrinho
             let carrinho = await Carrinho.findOne({ userId: idUsuario });
+
+            const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
     
             if (!carrinho) {
-                carrinho = new Carrinho({ userId: idUsuario, items: [] });
+                carrinho = new Carrinho({ 
+                    userId: idUsuario, 
+                    items: [], 
+                    createdAt: new Date(),
+                    expiresAt 
+                });
+                await carrinho.save();
+            } else {
+                // Atualiza expiração para nova reserva
+                carrinho.expiresAt = expiresAt;
                 await carrinho.save();
             }
     
@@ -71,12 +84,15 @@ class CarrinhoService {
                     produtoId: idProduto,
                     quantidade
                 });
-                await itemCarrinho.save();
-    
+                await itemCarrinho.save();  
                 // Adiciona a referência do item no carrinho
                 carrinho.items.push(itemCarrinho._id);
                 await carrinho.save();
             }
+
+             // Subtrai do estoque
+            produto.quantidadeEstoque -= quantidade;
+            await produto.save();
     
             return {
                 success: true,

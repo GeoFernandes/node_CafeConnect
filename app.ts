@@ -13,6 +13,7 @@ import UsuarioController from './src/controllers/usuario/UsuarioController';
 import CarrinhoController from './src/controllers/carrinho/carrinhoControler';
 import PedidoController from './src/controllers/pedido/pedidoController';
 import { authorizationChecker, currentUserChecker } from './src/autenticacao/authorization';
+import { iniciarTarefasAgendadas } from './src/cron';
 
 // Inicializa variáveis de ambiente
 dotenv.config();
@@ -67,6 +68,7 @@ connectWithRetry()
   .then(() => {
     console.log('Conectado ao MongoDB');
     startServer();
+    iniciarTarefasAgendadas();
   })
   .catch((err) => {
     console.error('Erro ao conectar ao MongoDB:', err);

@@ -7,7 +7,11 @@ const CarrinhoSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "ItemCarrinho"
     }
-  ]
+  ],
+  createdAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date }
 });
+
+CarrinhoSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const Carrinho = model("Carrinho", CarrinhoSchema);
