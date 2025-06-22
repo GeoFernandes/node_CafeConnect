@@ -58,8 +58,8 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const startServer = () => {
   app.listen(8080, () => {
-    console.log('Servidor rodando na porta 8080');
-    console.log('Documentação disponível em: http://localhost:8080/docs');
+    console.log('Servidor rodando na url: https://cafeconnect-u9rh.onrender.com/');
+    console.log('Documentação disponível em: https://cafeconnect-u9rh.onrender.com/docs');
   });
 };
 
