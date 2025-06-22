@@ -8,8 +8,8 @@ import { createExpressServer, getMetadataArgsStorage } from 'routing-controllers
 import { routingControllersToSpec } from 'routing-controllers-openapi';
 import swaggerUi from 'swagger-ui-express';
 import { connectWithRetry } from './src/config/database/database';
-import ProdutoController from './src/controllers/produto/ProdutoController';
-import UsuarioController from './src/controllers/usuario/UsuarioController';
+import ProdutoController from './src/controllers/produto/produtoController';
+import UsuarioController from './src/controllers/usuario/usuarioController';
 import CarrinhoController from './src/controllers/carrinho/carrinhoControler';
 import PedidoController from './src/controllers/pedido/pedidoController';
 import { authorizationChecker, currentUserChecker } from './src/autenticacao/authorization';
@@ -24,7 +24,7 @@ const app = createExpressServer({
   authorizationChecker,
   currentUserChecker,
   cors: {
-    origin: 'http://localhost:5173', // Permitir o front-end
+    origin: 'https://cafeconnect-theta.vercel.app', // Permitir o front-end
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true, // Se usar cookies ou autenticação via sessão
   },
@@ -32,7 +32,7 @@ const app = createExpressServer({
 
 // Aplica o middleware CORS antes das rotas
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://cafeconnect-theta.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   preflightContinue: false,
   optionsSuccessStatus: 204,
@@ -57,9 +57,9 @@ const swaggerSpec = routingControllersToSpec(getMetadataArgsStorage(), {
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const startServer = () => {
-  app.listen(5002, () => {
-    console.log('Servidor rodando na porta 5002');
-    console.log('Documentação disponível em: http://localhost:5002/docs');
+  app.listen(8080, () => {
+    console.log('Servidor rodando na porta 8080');
+    console.log('Documentação disponível em: http://localhost:8080/docs');
   });
 };
 

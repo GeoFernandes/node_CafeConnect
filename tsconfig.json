@@ -10,8 +10,9 @@
     "outDir": "./dist",
     "sourceMap": true,
     "strict": true,
+    "types": ["node"],
     "typeRoots": ["./src/@types", "./node_modules/@types", "./@types"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts", "app.ts"],
+  "exclude": ["node_modules", "dist"]
 }

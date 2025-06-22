@@ -1,6 +1,7 @@
 import { JsonController, Post, Body, Req, Res, HttpCode } from "routing-controllers";
 import axios from "axios";
 import { OpenAPI } from 'routing-controllers-openapi';
+import { randomUUID } from 'crypto';
 
 interface CriarPagamentoPixBody {
   totalAmount: number;
@@ -32,8 +33,7 @@ class PagamentoController {
   ) {
     try {
       const { totalAmount, payerEmail, description } = body;
-      console.log("Dados do pagamento PIX:", body);
-      const accessToken = 'TEST-6498827097104807-052115-4edc6595b11307a3b98e549b5e2cc6c0-716666768';;
+      const accessToken = process.env.MERCADO_PAGO_TOKEN;
       const idempotencyKey = req.headers["x-idempotency-key"];
 
       const payload = {
@@ -53,7 +53,7 @@ class PagamentoController {
             accept: "application/json",
             "content-type": "application/json",
             Authorization: `Bearer ${accessToken}`,
-            "X-Idempotency-Key": idempotencyKey || require("crypto").randomUUID()
+            "X-Idempotency-Key": idempotencyKey || randomUUID()
           }
         }
       );
