@@ -24,7 +24,7 @@ const app = createExpressServer({
   authorizationChecker,
   currentUserChecker,
   cors: {
-    origin: 'https://cafeconnect-theta.vercel.app', // Permitir o front-end
+    origin: ['https://cafeconnect-theta.vercel.app', 'http://localhost:5173'], // Permitir o front-end
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true, // Se usar cookies ou autenticação via sessão
   },
@@ -32,7 +32,7 @@ const app = createExpressServer({
 
 // Aplica o middleware CORS antes das rotas
 app.use(cors({
-  origin: 'https://cafeconnect-theta.vercel.app',
+  origin: ['https://cafeconnect-theta.vercel.app', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   preflightContinue: false,
   optionsSuccessStatus: 204,
